@@ -7,6 +7,7 @@ int main() {
         scanf("%d", &n);
         for(int i=0;i<n;i++){
             int s_odd=0, s_even=0, s_eve=0,v1=0, k, c=0;
+            
             scanf("%d", &k);
             if(k==0) printf("ROW %d: INACTIVE- ENERGY LEVEL 0\n", i+1);
             else{
