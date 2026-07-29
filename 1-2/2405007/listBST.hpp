@@ -143,8 +143,8 @@ private:
 
     Node* get_lca(Node* node, Key a, Key b) override{
         if(!node) return nullptr;
-        if(a<node->key and b<node->key) get_lca(Node* node->left, a, b);
-        else if(a>node->key and b>node->key) get_lca(Node* node->right, a, b);
+        if(a<node->key and b<node->key) return get_lca(Node* node->left, a, b);
+        else if(a>node->key and b>node->key) return get_lca(Node* node->right, a, b);
         return node;
     }
 
@@ -373,6 +373,36 @@ public:
     Key get_median() const{
         int k=(node_count+1)/2;
         return kth_smallest(root,k);
+    }
+
+    Key successor(Key a){
+        Node* curr=root;
+        Node* succ=nullptr;
+        while(curr){
+            if(a<curr->key){
+                succ=curr;
+                curr=curr->left;
+            }
+            else
+                curr=curr->right;
+        }
+        if(!succ) throw runtime_error("Successor not found");
+        return succ->key;
+    }
+
+    Key predecessor(Key a){
+        Node* curr=root;
+        Node* pred=nullptr;
+        while(curr){
+            if(a>curr->key){
+                pred=curr;
+                curr=curr->right;
+            }
+            else
+                curr=curr->left;
+        }
+        if(!pred) throw runtime_error("Predecessor not found");
+        return pred->key;
     }
 };
 
