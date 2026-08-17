@@ -14,6 +14,18 @@ class avl{
             right=nullptr;
         }
     };
+    int compr(node* k, node* n){
+        if(k->start!=n->start){
+            if(k->start>n->start) return 1;
+            else if(k->start<n->start) return -1;
+            else return 0;
+        }
+        else{
+            if(k->id>n->id) return -1;
+            else if(k->id<n->id) return 1;
+            else return 0;
+        }
+    }
     node* root=nullptr;
     node* right_rotate(node *n){
         node *new_root=n->left;
@@ -38,38 +50,38 @@ class avl{
         if(n==nullptr) return 0;
         return n->height;
     }
-    bool get_find(node *n, int k){
+    bool get_find(node *n, int s, int e){
         if(n==nullptr) return false;
-        if(k<n->key) return get_find(n->left, k);
-        else if(k>n->key) return get_find(n->right, k);
+        if(compr(get_node(s, e), n)==-1) return get_find(n->left, s, e);
+        else if(compr(get_node(s, e), n)==1) return get_find(n->right, s, e);
         else return true;
     }
     int get_balance(node *n){
         if(n==nullptr) return 0;
         return get_height(n->left)-get_height(n->right);
     }
-    node *get_insert(node *n, int k){
-        if(n==nullptr) return new node(k);
-        if(k<n->key) n->left=get_insert(n->left, k);
-        else if(k>n->key) n->right=get_insert(n->right, k);
+    node *get_insert(node *n, int s, int e){
+        if(n==nullptr) return new node(s, e);
+        if(compr(get_node(s, e), n)==-1) n->left=get_insert(n->left, s, e);
+        else if(compr(get_node(s, e), n)==1) n->right=get_insert(n->right, s, e);
         n->height=max(get_height(n->left), get_height(n->right))+1;
         int balance=get_balance(n);
-        if(balance>1 && k<n->left->key) return right_rotate(n);
-        if(balance<-1 && k>n->right->key) return left_rotate(n);
-        if(balance>1 && k>n->left->key){
+        if(balance>1 && s, e<n->left->id) return right_rotate(n);
+        if(balance<-1 && s, e>n->right->id) return left_rotate(n);
+        if(balance>1 && s, e>n->left->id){
             n->left=left_rotate(n->left);
             return right_rotate(n);
         }
-        if(balance<-1 && k<n->right->key){
+        if(balance<-1 && s, e<n->right->id){
             n->right=right_rotate(n->right);
             return left_rotate(n);
         }
         return n;
     }
-    node* get_erase(node *n, int k){
+    node* get_erase(node *n, int s, int e){
         if(n==nullptr) return n;
-        if(k<n->key) n->left=get_erase(n->left, k);
-        else if(k>n->key) n->right=get_erase(n->right, k);
+        if(s, e<n->id) n->left=get_erase(n->left, s, e);
+        else if(s, e>n->id) n->right=get_erase(n->right, s, e);
         else{
             if(n->left==nullptr || n->right==nullptr){
                 node *temp;
@@ -85,8 +97,8 @@ class avl{
             else{
                 node *temp=n->right;
                 while(temp->left!=nullptr) temp=temp->left;
-                n->key=temp->key;
-                n->right=get_erase(n->right, temp->key);
+                n->id=temp->id;
+                n->right=get_erase(n->right, temp->id);
             }
         }
         if(n==nullptr) return n;
@@ -105,42 +117,48 @@ class avl{
         return n;
     }
 public:
-    int length(int k){
-        node *n=get_node(k);
+    int length(int s, int e){
+        node *n=get_node(s, e);
         if(n==nullptr) return 0;
         return get_height(n);
     }
-    int get_key(node *n){
-        return n->key;
+    int get_id(node *n){
+        return n->id;
     }
-    int balance(int k){
-        node *n=get_node(k);
+    int balance(int s, int e){
+        node *n=get_node(s, e);
         if(n==nullptr) return 0;
         return get_balance(n);
     }
     node* get_root(){
         return root;
     }
-    node* get_node(int k){
+    node* get_node(int s, int e, int i){
         node *n=root;
         while(n!=nullptr){
-            if(k<n->key) n=n->left;
-            else if(k>n->key) n=n->right;
-            else return n;
+            if(s!=n->start){
+                if(s>n->start) n=n->right;
+                else if(s<n->start) n=n->left;
+            }
+            else{
+                if(i>n->id) n=n->right;
+                else if(i<n->id) n=n->left;
+                else return n;
+            }
         }
-        return nullptr;
+        return n;
     }
-    bool find(int k){
-        return get_find(root, k);
+    bool find(int s, int e){
+        return get_find(root, s, e);
     }
-    bool insert(int k){
-        if(find(k)) return false;
-        root=get_insert(root, k);
+    bool insert(int s, int e){
+        if(find(s, e)) return false;
+        root=get_insert(root, s, e);
         return true;
     }
-    bool erase(int k){
-        if(!find(k)) return false;
-        root=get_erase(root, k);
+    bool erase(int s, int e){
+        if(!find(s, e)) return false;
+        root=get_erase(root, s, e);
         return true;
     }
     vector<int> in_order(){
@@ -154,14 +172,14 @@ public:
             }
             n=st.top();
             st.pop();
-            res.push_back(n->key);
+            res.push_back(n->id);
             n=n->right;
         }
         return res;
     }
     void parentheses(node *n, ostream &out){
         if(n==nullptr) return;
-        out<<n->key;
+        out<<n->id;
         if(n->left or n->right){
             out<<"(";
             if(n->left) parentheses(n->left, out);
